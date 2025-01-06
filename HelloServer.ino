@@ -13,23 +13,18 @@ const char* password = STAPSK;
 
 ESP8266WebServer server(80);
 
-const int led = 13;
 
 void handleRoot() {
-  digitalWrite(led, 1);
-
   // Monta a resposta JSON
   String jsonResponse = "{";
-  jsonResponse += "\"message\": \"hello from esp8266!\"";
+  jsonResponse += "\"temperature\": \"hello from esp8266!\"";
   jsonResponse += "}";
 
   // Envia a resposta com o cabeçalho apropriado
   server.send(200, "application/json", jsonResponse);
-  digitalWrite(led, 0);
 }
 
 void handleNotFound() {
-  digitalWrite(led, 1);
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -40,13 +35,10 @@ void handleNotFound() {
   message += "\n";
   for (uint8_t i = 0; i < server.args(); i++) { message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
   server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
 }
 
 void setup(void) {
-  pinMode(led, OUTPUT);
-  digitalWrite(led, 0);
-  Serial.begin(9600);
+  Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -65,10 +57,6 @@ void setup(void) {
   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
 
   server.on("/", handleRoot);
-
-  server.on("/inline", []() {
-    server.send(200, "text/plain", "this works as well");
-  });
 
   server.on("/gif", []() {
     static const uint8_t gif[] PROGMEM = {
